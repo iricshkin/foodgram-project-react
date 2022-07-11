@@ -45,13 +45,13 @@ class Subscribe(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        # related_name='follower',
+        related_name='follower',
         verbose_name='Подписчик'
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        # related_name='following',
+        related_name='following',
         verbose_name='Избранный автор'
     )
 
@@ -63,10 +63,10 @@ class Subscribe(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'author'], name ='unique_relationships'
             ),
-            # models.CheckConstraint(
-            #     name='prevent_self_follow',
-            #     check=~models.Q(user=models.F('author')),
-            # ),
+            models.CheckConstraint(
+                name='prevent_self_follow',
+                check=~models.Q(user=models.F('author')),
+            ),
         ]
 
     def __str__(self) -> str:
