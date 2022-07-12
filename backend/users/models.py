@@ -29,6 +29,11 @@ class User(AbstractUser):
         verbose_name='Фамилия',
         help_text='Введите фамилию'
     )
+    is_subcribed = models.BooleanField(
+        default=False,
+        verbose_name='Подписка на данного автора',
+        help_text='Отметьте для подписки на автора'
+    )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
@@ -41,7 +46,7 @@ class User(AbstractUser):
         return self.username
 
 
-class Subscribe(models.Model):
+class Subscription(models.Model):
     """Модель подписок."""
     user = models.ForeignKey(
         User,

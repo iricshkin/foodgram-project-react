@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Subscribe
+from .models import User, Subscription
 
 class UserAdmin(admin.ModelAdmin):
     """Админка пользователя."""
@@ -9,7 +9,7 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ('username', 'email')
 
 
-class SubscribeAdmin(admin.ModelAdmin):
+class SubscriptionAdmin(admin.ModelAdmin):
     """Админка подписок."""
     list_display = ('id', 'user', 'author', 'created')
     list_filter = ('user',)
@@ -17,4 +17,4 @@ class SubscribeAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
-admin.site.register(Subscribe, SubscribeAdmin)
+admin.site.register(Subscription, SubscriptionAdmin)
