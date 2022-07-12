@@ -1,3 +1,4 @@
+from tracemalloc import Trace
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -54,9 +55,14 @@ class Subscribe(models.Model):
         related_name='following',
         verbose_name='Избранный автор'
     )
+    created = models.DateTimeField(
+        db_index=True,
+        verbose_name='Дата создания',
+        auto_now_add=True
+    )
 
     class Meta:
-        # ordering = ('-created',)
+        ordering = ('-created',)
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         constraints = [
