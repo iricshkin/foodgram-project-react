@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import User, Subscription
 
+
 class UserAdmin(admin.ModelAdmin):
     """Админка пользователя."""
     list_display = ('id', 'username', 'email')

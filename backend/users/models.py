@@ -1,5 +1,6 @@
 from tracemalloc import Trace
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
 
 
@@ -10,7 +11,11 @@ class User(AbstractUser):
         max_length=150,
         unique=True,
         verbose_name='Логин',
-        help_text='Введите логин'
+        help_text='Введите логин',
+        validators=[RegexValidator(
+            r'^[\w.@+-+\\z]',
+            'Неверные символы'
+        )]
     )
     email = models.EmailField(
         db_index=True,
@@ -72,7 +77,7 @@ class Subscription(models.Model):
         verbose_name_plural = 'Подписки'
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'author'], name ='unique_relationships'
+                fields=['user', 'author'], name='unique_relationships'
             ),
             models.CheckConstraint(
                 name='prevent_self_follow',
