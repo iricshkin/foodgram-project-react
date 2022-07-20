@@ -1,10 +1,15 @@
-from api.serializers import FavoriteSerializer, PasswordSerializer, UserSerializer
+from api.serializers import (
+    PasswordSerializer, SubscriptionsSerializer, TagSerializer, UserSerializer,
+)
 from django.shortcuts import get_object_or_404
-from users.models import Subscription, User
+from recipes.models import Tag
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from users.models import Subscription, User
+
+from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -53,7 +58,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def subscriptions(self, request):
         queryset = User.objects.filter(following__user=request.user)
         obj = self.paginate_queryset(queryset)
-        serializer = FavoriteSerializer(
+        serializer = SubscriptionsSerializer(
             obj,
             many=True,
             context={'request': request}
@@ -92,3 +97,12 @@ class UserViewSet(viewsets.ModelViewSet):
             subscribe = Subscription.objects.filter(user=user, author=author)
             subscribe.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для тегов."""
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = None
+    

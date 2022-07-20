@@ -1,4 +1,5 @@
 import os
+
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -113,13 +114,20 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 DJOSER = {
+    'PERMISSIONS': {
+        'user_list': ['rest_framework.permissions.AllowAny'],
+        'user': ['rest_framework.permissions.IsAuthenticated']
+    },
     'LOGIN_FIELD': 'email',
-    'HIDE_USERS': False
+    'HIDE_USERS': False,
+    'SERIALIZERS':{
+        'user': 'api.serializers.UserSerializer'
+    }
 }
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.IsAuthenticated',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
