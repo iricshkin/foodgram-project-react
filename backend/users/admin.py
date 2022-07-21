@@ -4,7 +4,7 @@ from .models import User, Subscription
 
 class UserAdmin(admin.ModelAdmin):
     """Админка пользователя."""
-    list_display = ('id', 'username', 'email')
+    list_display = ('id', 'username', 'email', 'password')
     search_fields = ('username', 'email')
     empty_value_display = '-пусто-'
     list_filter = ('username', 'email')
