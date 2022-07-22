@@ -1,21 +1,27 @@
-from api.serializers import (
-    PasswordSerializer, SubscriptionsSerializer, TagSerializer, UserSerializer,
-)
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from recipes.models import Tag
-from rest_framework import status, viewsets
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from users.models import Subscription, User
 
+from .filters import IngredientSearchFilter, RecipeFilter
+from .pagination import LimitPageNumberPagination
 from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from .serializers import (
+    IngredientSerializer, PasswordSerializer, RecipeMinifiedSerializer,
+    RecipeSerializer, SubscriptionsSerializer, TagSerializer, UserSerializer,
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     """Вьюсет для пользователя."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    pagination_class = LimitPageNumberPagination
     
     @action(
         detail=False,
@@ -103,5 +109,124 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для тегов."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = None
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    """Вьюсет для рецептов."""
+    queryset = Recipe
+    serializer_class = RecipeSerializer
+    permission_class = (IsAuthorOrReadOnly,)
+    pagination_classes = LimitPageNumberPagination
+    filterset_class = RecipeFilter
+
+    @action (
+        url_path='download_shopping_cart',
+        detail=False,
+        permission_classes=(IsAuthenticated,)
+    )
+    def download_shopping_cart(self, request):
+        """Получение списка покупок в формате txt."""
+        ingredients = ShoppingCart.objects.filter(
+            user=request.user
+        ).values(
+            'recipe__ingredients__name',
+            'recipe__ingredients__measurement_unit'
+        ).annotate(amount=Sum('recipe__ingredient_in_recipe__amout'))
+        if not ingredients:
+            return Response(
+                {'errors': 'Список покупок пуст!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        shopping_cart = 'Ваш список покупок: \n'
+        for ingredient in ingredients:
+            shopping_cart += (
+                f'{ingredient["recipe__ingredients__name"]} '
+                f'({ingredient["recipe__ingredients__measurement_unit"]}) - '
+                f'{ingredient["amount"]} \n\n'
+            )
+        shopping_cart += '@Продуктовый помощник'
+        filename = 'my_shopping_cart.txt'
+        response = HttpResponse(
+            shopping_cart, status=status.HTTP_200_OK,
+            content_type='text/plain'
+        )
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        return response
+
+
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для ингредиентов."""
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    permission_classes = (AllowAny,)
+    pagination_class = None
+    filter_backends = (IngredientSearchFilter,)
+    search_fields = ('^name',)
+
+
+class FavoriteViewSet(mixins.CreateModelMixin, 
+                      mixins.DestroyModelMixin,
+                      viewsets.GenericViewSet):
+    """Вьюсет для избранных рецептов."""
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeMinifiedSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def create(self, request, recipe_id):
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        if Favorite.objects.filter(user=request.user, recipe=recipe).exists():
+            return Response(
+                data={'detail': 'Этот рецепт уже есть в избранном!'},
+                status=status.HTTP_400_Bad_REQUEST
+            )
+        Favorite.objects.create(user=request.user, recipe=recipe)
+        serializer = self.get_serializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, recipe_id):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        if not Favorite.objects.filter(user=user, recipe=recipe).exists():
+            return Response(
+                data={'detail': 'Вы не подписаны на этот рецепт!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        favorite = Favorite.objects.filter(user=user, recipe=recipe)
+        favorite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ShoppingCartViewSet(viewsets.ModelViewSet):
+    """Вьюсет для списка покупок."""
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeMinifiedSerializer
+    permission_classes = (IsAdminOrReadOnly,
+                          IsAuthorOrReadOnly,
+                          IsAuthenticated,)
+    
+    def create(self, request, recipe_id):
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        if ShoppingCart.objects.filter(
+            user=request.user, recipe=recipe
+            ).exists():
+            return Response(
+                data={'detail': 'Рецепт уже есть в списке покупок!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        ShoppingCart.objects.create(user=request.user, recipe=recipe)
+        serializer = self.get_serializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+def delete(self, request, recipe_id):
+    user = request.user
+    recipe = get_object_or_404(Recipe, pk=recipe_id)
+    if not ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+        return Response(
+            data={'detail': 'Рецепта еще нет в списке покупок!'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    cart = ShoppingCart.objects.filter(user=user,recipe=recipe)
+    cart.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)

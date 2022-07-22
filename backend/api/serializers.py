@@ -4,7 +4,6 @@ from recipes.models import (
     Favorite, Ingredient, IngredientInRecipe, Recipe, ShoppingCart, Tag,
     TagRecipe,
 )
-from requests import ReadTimeout
 from rest_framework import serializers
 from users.models import Subscription, User
 

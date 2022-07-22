@@ -35,7 +35,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
     'djoser',
+    'django_filters',
+    'drf_yasg',
     'api.apps.ApiConfig',
     'users.apps.UsersConfig',
     'recipes.apps.RecipesConfig',
@@ -44,6 +47,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -125,6 +129,16 @@ DJOSER = {
     }
 }
 
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -149,7 +163,11 @@ REST_FRAMEWORK = {
         'anon': '1000/day',
     },
 
-    'DEFAULT_PAGINATION_CLASS': 'api.pagination.LimitPageNumberPagination'
+    'DEFAULT_PAGINATION_CLASS': 'api.pagination.LimitPageNumberPagination',
+
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
 }
 
 # Internationalization
@@ -178,3 +196,6 @@ MEDIA_URL = '/media/'
 NEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 AUTH_USER_MODEL = 'users.User'
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_URLS_REGEX = r'^/api/.*$'
