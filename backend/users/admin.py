@@ -1,21 +1,16 @@
 from django.contrib import admin
-from .models import User, Subscription
+from django.contrib.auth.admin import UserAdmin
+
+from .models import User
 
 
-class UserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(UserAdmin):
     """Админка пользователя."""
+
     list_display = ('id', 'username', 'email', 'password')
     search_fields = ('username', 'email')
     empty_value_display = '-пусто-'
     list_filter = ('username', 'email')
 
 
-class SubscriptionAdmin(admin.ModelAdmin):
-    """Админка подписок."""
-    list_display = ('id', 'user', 'author', 'created')
-    list_filter = ('user',)
-    search_fields = ('user',)
-
-
-admin.site.register(User, UserAdmin)
-admin.site.register(Subscription, SubscriptionAdmin)
+admin.site.register(User, CustomUserAdmin)
