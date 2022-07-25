@@ -79,24 +79,24 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 # DATABASES = {
 #    'default': {
-#        'ENGINE': os.getenv(
-#            'DB_ENGINE', default='django.db.backends.postgresql'
-#        ),
-#        'NAME': os.getenv('DB_NAME', default='postgres'),
-#        'USER': os.getenv('POSTGRES_USER', default='user'),
-#        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='password'),
-#        'HOST': os.getenv('DB_HOST', default='db'),
-#        'PORT': os.getenv('DB_PORT', default='5432'),
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #    }
 # }
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv(
+            'DB_ENGINE', default='django.db.backends.postgresql'
+        ),
+        'NAME': os.getenv('DB_NAME', default='postgres'),
+        'USER': os.getenv('POSTGRES_USER', default='user'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='password'),
+        'HOST': os.getenv('DB_HOST', default='db'),
+        'PORT': os.getenv('DB_PORT', default='5432'),
+    }
+}
 
 
 # Password validation
@@ -175,13 +175,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/backend_static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'backend_static')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '/backend_media/'
 
-NEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+NEDIA_ROOT = os.path.join(BASE_DIR, 'backend_media')
 
 AUTH_USER_MODEL = 'users.User'
 
