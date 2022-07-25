@@ -89,6 +89,9 @@ class TagSerializer(serializers.ModelSerializer):
 class IngredientSerializer(serializers.ModelSerializer):
     """Сериализатор для ингредиентов."""
 
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField(write_only=True)
+
     class Meta:
         fields = ('id', 'name', 'measurement_unit')
         read_only_fields = ('id', 'name', 'measurement_unit')
@@ -110,7 +113,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для количества ингредиентов в рецепте."""
 
     id = serializers.ReadOnlyField(
-        default=Ingredient.objects.all(), source='ingredient.id'
+        default=Ingredient.objects.all(), source='ingredient_id'
     )
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -189,7 +192,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         user = self.context['request'].user
         return user.is_authenticated and ShoppingCart.objects.filter(
-            user=user, recipe=obj
+            user=user, recipe__id=obj.id
         )
 
     def add_ingredients_and_tags(self, tags, ingredients, recipe):
@@ -215,14 +218,14 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredientinrecipes')
+        ingredients = validated_data.pop('ingredient_in_recipes')
         recipe = Recipe.objects.create(**validated_data)
         recipe = self.add_ingredients_and_tags(tags, ingredients, recipe)
         return recipe
 
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredientinrecipe')
+        ingredients = validated_data.pop('ingredient_in_recipes')
         TagRecipe.objects.filter(recipe=instance).delete()
         IngredientInRecipe.objects.filter(recipe=instance).delete()
         instance = self.add_ingredients_and_tags(tags, ingredients, instance)
