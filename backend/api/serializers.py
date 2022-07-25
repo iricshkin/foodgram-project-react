@@ -130,7 +130,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(), many=True
     )
     ingredients = IngredientInRecipeSerializer(
-        source='ingredientinrecipes', many=True
+        source='ingredient_in_recipes', many=True
     )
     image = Base64ImageField(max_length=None, use_url=False)
     is_favorited = serializers.SerializerMethodField()
@@ -231,6 +231,18 @@ class RecipeSerializer(serializers.ModelSerializer):
         return instance
 
 
+class ShoppingCartSerializer(serializers.Serializer):
+    """Сериализатор для списка покупок."""
+
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    cooking_time = serializers.IntegerField()
+    image = Base64ImageField(
+        max_length=None,
+        use_url=False,
+    )
+
+
 class SubscriptionsSerializer(serializers.ModelSerializer):
     """Сериализатор для подписок."""
 
@@ -249,7 +261,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
             'recipes',
             'recipes_count',
         )
-        model = Subscription
+        model = User
 
     def validate(self, data):
         user = self.context['request'].user

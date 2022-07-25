@@ -146,7 +146,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 'recipe__ingredients__name',
                 'recipe__ingredients__measurement_unit',
             )
-            .annotate(amount=Sum('recipe__ingredient_in_recipe__amout'))
+            .annotate(amount=Sum('recipe__ingredient_in_recipes__amout'))
         )
         if not ingredients:
             return Response(
