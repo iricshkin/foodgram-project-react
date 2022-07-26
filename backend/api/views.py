@@ -84,7 +84,7 @@ class UserViewSet(viewsets.ModelViewSet):
         detail=True,
         permission_classes=(IsAuthenticated,),
     )
-    def subcribe(self, request, pk=None):
+    def subscribe(self, request, pk=None):
         user = request.user
         author_id = pk
         author = get_object_or_404(User, pk=author_id)

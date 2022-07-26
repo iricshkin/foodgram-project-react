@@ -22,11 +22,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = (
+            'email',
             'id',
+            'username',
             'first_name',
             'last_name',
-            'username',
-            'email',
             'password',
             'is_subscribed',
         )
@@ -93,7 +93,7 @@ class IngredientSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField(write_only=True)
 
     class Meta:
-        fields = ('id', 'name', 'measurement_unit')
+        fields = ('id', 'name', 'measurement_unit', 'amount')
         read_only_fields = ('id', 'name', 'measurement_unit')
         model = Ingredient
 
@@ -142,15 +142,15 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
             'id',
+            'tags',
             'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
             'name',
             'image',
             'text',
             'cooking_time',
-            'tags',
-            'ingredients',
-            'is_in_shopping_cart',
-            'is_favorited',
         )
         model = Recipe
 
@@ -201,10 +201,12 @@ class RecipeSerializer(serializers.ModelSerializer):
             recipe.save()
         for ingredient in ingredients:
             if not IngredientInRecipe.objects.filter(
-                ingredient_id=ingredient['ingredient']['id'], recipe=recipe
+                ingredient_id=ingredient['ingredientinrecipes']['id'],
+                recipe=recipe,
             ).exists():
                 ingredientinrecipe = IngredientInRecipe.objects.create(
-                    ingredient_id=ingredient['ingredient']['id'], recipe=recipe
+                    ingredient_id=ingredient['ingredientinrecipes']['id'],
+                    recipe=recipe,
                 )
                 ingredientinrecipe.amount = ingredient['amount']
                 ingredientinrecipe.save()
@@ -218,14 +220,14 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredient_in_recipes')
+        ingredients = validated_data.pop('ingredientinrecipes')
         recipe = Recipe.objects.create(**validated_data)
         recipe = self.add_ingredients_and_tags(tags, ingredients, recipe)
         return recipe
 
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredient_in_recipes')
+        ingredients = validated_data.pop('ingredientinrecipes')
         TagRecipe.objects.filter(recipe=instance).delete()
         IngredientInRecipe.objects.filter(recipe=instance).delete()
         instance = self.add_ingredients_and_tags(tags, ingredients, instance)
