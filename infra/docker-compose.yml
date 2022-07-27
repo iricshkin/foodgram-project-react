@@ -6,20 +6,20 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ./.env
+      - ../.env
 
   backend:
-    build: 
-      context: .
-      dockerfile:  Dockerfile
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
     restart: always
-    volumes:      
-      - static_value:/app/backend_static/
-      - media_value:/app/backend_media/
+    volumes:
+      - static_value:/app/backend_static/:rw
+      - media_value:/app/media/:rw
     depends_on:
       - db
     env_file:
-      - ./.env
+      - ../.env
 
   frontend:
     build:
@@ -29,16 +29,17 @@ services:
       - ../frontend/:/app/result_build/
     depends_on:
       - backend
+
   nginx:
     image: nginx:1.19.3
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
-      - static_value:/usr/share/nginx/html/backend_static/
-      - media_value://usr/share/nginx/html/backen_media/
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../frontend/build:/usr/share/nginx/html/:ro
+      - ../docs/:/usr/share/nginx/html/api/docs/:ro
+      - static_value:/usr/share/nginx/html/backend_static/:ro
+      - media_value:/usr/share/nginx/html/media/:ro
     depends_on:
       - backend
 

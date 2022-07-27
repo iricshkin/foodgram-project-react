@@ -179,9 +179,9 @@ STATIC_URL = '/backend_static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'backend_static')
 
-MEDIA_URL = '/backend_media/'
+MEDIA_URL = '/media/'
 
-NEDIA_ROOT = os.path.join(BASE_DIR, 'backend_media')
+NEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 AUTH_USER_MODEL = 'users.User'
 
