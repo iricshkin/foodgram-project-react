@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.forms import ValidationError
 from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (
@@ -201,11 +202,11 @@ class RecipeSerializer(serializers.ModelSerializer):
             recipe.save()
         for ingredient in ingredients:
             if not IngredientInRecipe.objects.filter(
-                ingredient_id=ingredient['ingredientinrecipes']['id'],
+                ingredient_id=ingredient['ingredient']['id'],
                 recipe=recipe,
             ).exists():
                 ingredientinrecipe = IngredientInRecipe.objects.create(
-                    ingredient_id=ingredient['ingredientinrecipes']['id'],
+                    ingredient_id=ingredient['ingredient']['id'],
                     recipe=recipe,
                 )
                 ingredientinrecipe.amount = ingredient['amount']
@@ -216,8 +217,9 @@ class RecipeSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Данный ингредиент уже есть в рецепте!'
                 )
-        return recipe
+            return recipe
 
+    @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredientinrecipes')
@@ -225,6 +227,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         recipe = self.add_ingredients_and_tags(tags, ingredients, recipe)
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredientinrecipes')

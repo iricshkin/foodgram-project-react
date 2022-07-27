@@ -10,3 +10,4 @@ django_extra_fields==3.0.2
 django-filter==21.1
 drf_yasg==1.21.3
 django-cors-headers==3.13.0
+gunicorn==20.0.4

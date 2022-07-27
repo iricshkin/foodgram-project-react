@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -103,14 +104,12 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
-            if not Subscription.objects.filter(
-                user=user, author=author
-            ).exists():
+            subscribe = Subscription.objects.filter(user=user, author=author)
+            if not subscribe.exists():
                 return Response(
                     data={'detai': 'Вы не подписаны на этого автора!'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            subscribe = Subscription.objects.filter(user=user, author=author)
             subscribe.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -132,6 +131,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_class = (IsAuthorOrReadOnly,)
     pagination_classes = LimitPageNumberPagination
     filterset_class = RecipeFilter
+    filter_backends = (DjangoFilterBackend,)
 
     @action(
         url_path='download_shopping_cart',
@@ -176,7 +176,11 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
     pagination_class = None
-    filter_backends = (IngredientSearchFilter,)
+    # filter_class = IngredientSearchFilter
+    filter_backend = (
+        DjangoFilterBackend,
+        IngredientSearchFilter,
+    )
     search_fields = ('^name',)
 
 
@@ -203,12 +207,12 @@ class FavoriteViewSet(
     def delete(self, request, recipe_id):
         user = request.user
         recipe = get_object_or_404(Recipe, pk=recipe_id)
-        if not Favorite.objects.filter(user=user, recipe=recipe).exists():
+        favorite = Favorite.objects.filter(user=user, recipe=recipe)
+        if not favorite.exists():
             return Response(
                 data={'detail': 'Вы не подписаны на этот рецепт!'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        favorite = Favorite.objects.filter(user=user, recipe=recipe)
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -241,11 +245,11 @@ class ShoppingCartViewSet(viewsets.ModelViewSet):
 def delete(self, request, recipe_id):
     user = request.user
     recipe = get_object_or_404(Recipe, pk=recipe_id)
-    if not ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+    cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
+    if not cart.exists():
         return Response(
             data={'detail': 'Рецепта еще нет в списке покупок!'},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
     cart.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
