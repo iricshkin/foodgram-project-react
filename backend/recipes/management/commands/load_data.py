@@ -1,7 +1,6 @@
 """Скрипт для заполнения базы данных ингредиетов."""
 
 import json
-
 from typing import Any, Optional
 
 from django.core.management.base import BaseCommand
