@@ -1,5 +1,4 @@
 import os
-
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -153,7 +152,7 @@ REST_FRAMEWORK = {
         'anon': '1000/day',
     },
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.LimitPageNumberPagination',
-    #'DEFAULT_FILTER_BACKENDS': [
+    # 'DEFAULT_FILTER_BACKENDS': [
     #    'django_filters.rest_framework.DjangoFilterBackend'
     # ],
 }
@@ -179,9 +178,9 @@ STATIC_URL = '/backend_static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'backend_static')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '/backend_media/'
 
-NEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+NEDIA_ROOT = os.path.join(BASE_DIR, 'backend_media')
 
 AUTH_USER_MODEL = 'users.User'
 
