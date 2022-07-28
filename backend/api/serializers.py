@@ -200,24 +200,34 @@ class RecipeSerializer(serializers.ModelSerializer):
         for tag in tags:
             recipe.tags.add(tag)
             recipe.save()
-        for ingredient in ingredients:
-            if not IngredientInRecipe.objects.filter(
-                ingredient_id=ingredient['ingredient']['id'],
+        instances = [
+            IngredientInRecipe(
                 recipe=recipe,
-            ).exists():
-                ingredientinrecipe = IngredientInRecipe.objects.create(
-                    ingredient_id=ingredient['ingredient']['id'],
-                    recipe=recipe,
-                )
-                ingredientinrecipe.amount = ingredient['amount']
-                ingredientinrecipe.save()
-            else:
-                IngredientInRecipe.objects.filter(recipe=recipe).delete()
-                recipe.delete()
-                raise serializers.ValidationError(
-                    'Данный ингредиент уже есть в рецепте!'
-                )
-            return recipe
+                ingredient=ingredient['id'],
+                amount=ingredient['amount'],
+            )
+            for ingredient in ingredients
+        ]
+        IngredientInRecipe.objects.bulk_create(instances)
+
+        # for ingredient in ingredients:
+        #    if not IngredientInRecipe.objects.filter(
+        #        ingredient_id=ingredient['ingredient']['id'],
+        #        recipe=recipe,
+        #    ).exists():
+        #        ingredientinrecipe = IngredientInRecipe.objects.create(
+        #            ingredient_id=ingredient['ingredient']['id'],
+        #            recipe=recipe,
+        #        )
+        #        ingredientinrecipe.amount = ingredient['amount']
+        #        ingredientinrecipe.save()
+        #    else:
+        #        IngredientInRecipe.objects.filter(recipe=recipe).delete()
+        #        recipe.delete()
+        #        raise serializers.ValidationError(
+        #            'Данный ингредиент уже есть в рецепте!'
+        #        )
+        #    return recipe
 
     @transaction.atomic
     def create(self, validated_data):

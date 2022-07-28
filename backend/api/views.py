@@ -131,7 +131,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_class = (IsAuthorOrReadOnly,)
     pagination_classes = LimitPageNumberPagination
     filterset_class = RecipeFilter
-    filter_backends = (DjangoFilterBackend,)
+    # filter_backends = (DjangoFilterBackend,)
 
     @action(
         url_path='download_shopping_cart',
