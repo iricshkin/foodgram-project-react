@@ -1,8 +1,16 @@
 from django.db import transaction
 from django.forms import ValidationError
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
-                            ShoppingCart, Subscription, Tag, TagRecipe)
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    IngredientInRecipe,
+    Recipe,
+    ShoppingCart,
+    Subscription,
+    Tag,
+    TagRecipe,
+)
 from rest_framework import serializers
 from users.models import User
 
@@ -282,8 +290,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         return (
-            request.user.is_authenticated
-            and Subscription.objects.filter(
+            request.user.is_authenticated and Subscription.objects.filter(
                 user=request.user, author=obj
             ).exists()
         )
@@ -291,6 +298,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
+
         queryset = Recipe.objects.filter(author=obj)
         if recipes_limit:
             queryset = queryset[: int(recipes_limit)]
