@@ -21,12 +21,10 @@ class RecipeFilter(FilterSet):
     )
     is_favorited = filters.BooleanFilter(
         widget=BooleanWidget(),
-        # method='__filter_is_favorited_or_is_in_shopping_cart',
         method='filter_is_favorited',
     )
     is_in_shopping_cart = filters.BooleanFilter(
         widget=BooleanWidget(),
-        # method='__filter_is_favorited_or_is_in_shopping_cart',
         method='filteris_in_shopping_cart',
     )
 
@@ -34,19 +32,25 @@ class RecipeFilter(FilterSet):
         model = Recipe
         fields = ('author', 'tags', 'is_favorited', 'is_in_shopping_cart')
 
-    # def __filter_is_favorited_or_is_in_shopping_cart(
-    #    self, queryset, name, value, key
-    # ):
-    #    if value:
-    #        return queryset.filter(**{f'{key}__user': self.request.user})
-    #    return queryset
-
-    def filter_is_favorited(self, queryset, name, value):
+    def _is_favorited_is_in_shopping_cart(self, queryset, key):
+        filter_dict = {
+            'favorites': 'is_favorited',
+            'cart': 'is_in_shopping_cart',
+        }
+        user = self.request.user
+        if not user.is_authenticated:
+            return queryset
+        value = self.request.query_params.get(
+            filter_dict[key],
+        )
         if value:
-            return queryset.filter(in_favorites__user=self.request.user)
+            return queryset.filter(
+                **{f'{key}__user': self.request.user}
+            ).distinct()
         return queryset
 
-    def filter_is_in_shopping_cart(self, queryset, name, value):
-        if value:
-            return queryset.filter(shopping_cart__user=self.request.user)
-        return queryset
+    def filter_is_favorited(self, queryset, is_favorited, slug):
+        return self._is_favorited_is_in_shopping_cart(queryset, 'favorites')
+
+    def filter_is_in_shopping_cart(self, queryset, is_in_shopping_cart, slug):
+        return self._is_favorited_is_in_shopping_cart(queryset, 'cart')
