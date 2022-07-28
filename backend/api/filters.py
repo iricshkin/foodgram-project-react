@@ -1,13 +1,43 @@
+from django.db.models import Case, IntegerField, Q, When
 from django_filters import FilterSet, filters
 from django_filters.widgets import BooleanWidget
-from recipes.models import Recipe, Tag
-from rest_framework.filters import SearchFilter
+from recipes.models import Ingredient, Recipe, Tag
+
+# from rest_framework.filters import SearchFilter
 
 
-class IngredientSearchFilter(SearchFilter):
+# class IngredientSearchFilter(SearchFilter):
+#
+#    search_param = 'name'
+class IngredientSearchFilter(FilterSet):
     """Фильтр поиска ингредиентов."""
 
-    search_param = 'name'
+    name = filter.CharFilter(field_name="name", method="name_filter")
+
+    class Meta:
+        model = Ingredient
+        fields = ["name"]
+
+    @staticmethod
+    def name_filter(queryset, name, value):
+        return (
+            queryset.filter(**{f"{name}__icontains": value})
+            .annotate(
+                order=Case(
+                    When(
+                        Q(**{f"{name}__istartswith": value}),
+                        then=1,
+                    ),
+                    When(
+                        Q(**{f"{name}__icontains": value})
+                        & ~Q(**{f"{name}__istartswith": value}),
+                        then=2,
+                    ),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by("order")
+        )
 
 
 class RecipeFilter(FilterSet):

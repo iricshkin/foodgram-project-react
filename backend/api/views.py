@@ -2,7 +2,8 @@ from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
+
+# from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -176,12 +177,12 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
     pagination_class = None
-    # filter_class = IngredientSearchFilter
-    filter_backend = (
-        DjangoFilterBackend,
-        IngredientSearchFilter,
-    )
-    search_fields = ('^name',)
+    filterset_class = IngredientSearchFilter
+    # filter_backend = (
+    #    DjangoFilterBackend,
+    #    IngredientSearchFilter,
+    # )
+    # search_fields = ('^name',)
 
 
 class FavoriteViewSet(
