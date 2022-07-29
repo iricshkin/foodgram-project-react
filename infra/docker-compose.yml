@@ -20,7 +20,10 @@ services:
       - ./.env
 
   frontend:
-    image: iricshkin/foodgram_frontend:latest
+    # image: iricshkin/foodgram_frontend:latest
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
