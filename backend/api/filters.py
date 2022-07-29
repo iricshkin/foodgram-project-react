@@ -1,5 +1,5 @@
 from django.db.models import Case, IntegerField, Q, When
-from django_filters import FilterSet, filters
+from django_filters import CharFilter, FilterSet, filters
 from django_filters.widgets import BooleanWidget
 from recipes.models import Ingredient, Recipe, Tag
 
@@ -12,7 +12,7 @@ from recipes.models import Ingredient, Recipe, Tag
 class IngredientSearchFilter(FilterSet):
     """Фильтр поиска ингредиентов."""
 
-    name = filter.CharFilter(field_name="name", method="name_filter")
+    name = CharFilter(field_name="name", method="name_filter")
 
     class Meta:
         model = Ingredient
