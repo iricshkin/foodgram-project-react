@@ -2,6 +2,7 @@ from django.db.models import Case, IntegerField, Q, When
 from django_filters import CharFilter, FilterSet, filters
 from django_filters.widgets import BooleanWidget
 from recipes.models import Ingredient, Recipe, Tag
+from requests import request
 
 # from rest_framework.filters import SearchFilter
 
@@ -51,36 +52,39 @@ class RecipeFilter(FilterSet):
     )
     is_favorited = filters.BooleanFilter(
         widget=BooleanWidget(),
-        method='filter_is_favorited',
+        method='is_favorited_or_is_in_shopping_cart',
+        # method='filter_is_favorited',
     )
     is_in_shopping_cart = filters.BooleanFilter(
         widget=BooleanWidget(),
-        method='filteris_in_shopping_cart',
+        method='_is_favorited_or_is_in_shopping_cart',
+        # method='filteris_in_shopping_cart',
     )
 
     class Meta:
         model = Recipe
         fields = ('author', 'tags', 'is_favorited', 'is_in_shopping_cart')
 
-    def _is_favorited_is_in_shopping_cart(self, queryset, key):
-        filter_dict = {
-            'favorites': 'is_favorited',
-            'cart': 'is_in_shopping_cart',
-        }
-        user = self.request.user
-        if not user.is_authenticated:
-            return queryset
-        value = self.request.query_params.get(
-            filter_dict[key],
-        )
+    def _is_favorited_or_is_in_shopping_cart(self, queryset, key, value):
+#         filter_dict = {
+#             'favorites': 'is_favorited',
+#             'cart': 'is_in_shopping_cart',
+#         }
+#         user = self.request.user
+#         if not user.is_authenticated:
+#             return queryset
+#         value = self.request.query_params.get(
+#             filter_dict[key],
+#         )
         if value:
-            return queryset.filter(
-                **{f'{key}__user': self.request.user}
-            ).distinct()
+            return queryset.filter(**{f'{key}__user': self.request.user})
+            # return queryset.filter(
+            #     **{f'{key}__user': self.request.user}
+            # ).distinct()
         return queryset
 
-    def filter_is_favorited(self, queryset, is_favorited, slug):
-        return self._is_favorited_is_in_shopping_cart(queryset, 'favorites')
-
-    def filter_is_in_shopping_cart(self, queryset, is_in_shopping_cart, slug):
-        return self._is_favorited_is_in_shopping_cart(queryset, 'cart')
+#     def filter_is_favorited(self, queryset, is_favorited, slug):
+#         return self._is_favorited_is_in_shopping_cart(queryset, 'favorites')
+# 
+#     def filter_is_in_shopping_cart(self, queryset, is_in_shopping_cart, slug):
+#         return self._is_favorited_is_in_shopping_cart(queryset, 'cart')

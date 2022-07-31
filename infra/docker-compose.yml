@@ -38,8 +38,8 @@ services:
       - ../frontend/build:/usr/share/nginx/html/:ro
       - ../docs/:/usr/share/nginx/html/api/docs/:ro
       - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml:ro
-      - static_value:/app/backend_static/:ro
-      - media_value:/app/backend_media/:ro
+      - static_value:/var/html/backend_static/:ro
+      - media_value:/var/html/backend_media/:ro
     depends_on:
       - backend
 
