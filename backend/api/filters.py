@@ -83,8 +83,8 @@ class RecipeFilter(FilterSet):
             # ).distinct()
         return queryset
 
-#     def filter_is_favorited(self, queryset, is_favorited, slug):
-#         return self._is_favorited_is_in_shopping_cart(queryset, 'favorites')
+#    def filter_is_favorited(self, queryset, is_favorited, slug):
+#        return self._is_favorited_is_in_shopping_cart(queryset, 'favorites')
 # 
-#     def filter_is_in_shopping_cart(self, queryset, is_in_shopping_cart, slug):
-#         return self._is_favorited_is_in_shopping_cart(queryset, 'cart')
+#    def filter_is_in_shopping_cart(self, queryset, is_in_shopping_cart, slug):
+#        return self._is_favorited_is_in_shopping_cart(queryset, 'cart')
