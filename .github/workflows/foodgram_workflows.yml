@@ -50,7 +50,7 @@ jobs:
         with:
           push: true
           context: ./frontend/
-          # file: ./backend/Dockerfile
+          # file: ./frontend/Dockerfile
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
 
   deploy:
