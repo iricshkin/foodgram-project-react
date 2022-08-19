@@ -2,8 +2,16 @@ from django.db import transaction
 from django.forms import ValidationError
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
-                            ShoppingCart, Subscription, Tag, TagRecipe)
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    IngredientInRecipe,
+    Recipe,
+    ShoppingCart,
+    Subscription,
+    Tag,
+    TagRecipe,
+)
 from rest_framework import serializers
 from users.models import User
 
@@ -97,7 +105,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для количества ингредиентов в рецепте."""
 
     id = serializers.ReadOnlyField(
-        default=Ingredient.objects.all(), source='ingredient_id'
+        default=Ingredient.objects.all(), source='ingredient.id'
     )
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -117,7 +125,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(), many=True
     )
     ingredients = IngredientInRecipeSerializer(
-        source='ingredient_in_recipes', many=True
+        source='ingredientinrecipes', many=True
     )
     image = Base64ImageField(max_length=None, use_url=False)
     is_favorited = serializers.SerializerMethodField()
