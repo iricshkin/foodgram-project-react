@@ -11,7 +11,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: ["3.7", "3.8", "3.9"]
 
     - name: Install dependencies
       run: |
@@ -51,7 +51,7 @@ jobs:
           push: true
           context: ./frontend/
           # file: ./frontend/Dockerfile
-          tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:v.01
 
   deploy:
     runs-on: ubuntu-latest
