@@ -1,7 +1,6 @@
 FROM python:3.7-slim
 
-LABEL author="iricshkin"
-LABEL maintainer="Irina Fok"
+RUN apt update && apt -y install libpq-dev build-essential 
 
 WORKDIR /app
 
