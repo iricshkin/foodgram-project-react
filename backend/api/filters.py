@@ -1,7 +1,6 @@
 from django.db.models import Case, IntegerField, Q, When
 from django_filters import CharFilter, FilterSet, filters
 from django_filters.widgets import BooleanWidget
-
 from recipes.models import Ingredient, Recipe, Tag
 
 # from rest_framework.filters import SearchFilter
