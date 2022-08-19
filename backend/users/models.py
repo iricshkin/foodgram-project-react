@@ -31,7 +31,7 @@ class User(AbstractUser):
         help_text='Отметьте для подписки на автора',
     )
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']
 
     class Meta:
         verbose_name = 'Пользователь'
