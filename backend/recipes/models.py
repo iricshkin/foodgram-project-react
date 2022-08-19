@@ -1,12 +1,9 @@
-from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
+from users.models import User
 
 MIN_INGR_AMOUNT = 1
 MIN_COOK_TIME = 1
-
-
-User = get_user_model()
 
 
 class Tag(models.Model):
@@ -109,7 +106,6 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         through='TagRecipe',
-        related_name='recipes',
         verbose_name='Тег рецепта',
         help_text='Выберите тег рецепта',
     )
@@ -170,14 +166,14 @@ class IngredientInRecipe(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.PROTECT,
-        related_name='ingredient_in_recipes',
+        related_name='ingredientinrecipes',
         verbose_name='Ингредиенты рецепта',
         help_text='Выберите ингредиенты рецепта',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredient_in_recipes',
+        related_name='ingredientinrecipes',
         verbose_name='Рецепт',
         help_text='Выберите рецепт',
     )
@@ -218,7 +214,7 @@ class Favorite(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='in_favorites',
+        related_name='favorites',
         verbose_name='Избранный рецепт',
         help_text='Выберите избранный рецепт',
     )
@@ -280,14 +276,13 @@ class ShoppingCart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='shopping_cart',
         verbose_name='Пользователь',
         help_text='Выберите пользователя',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='shopping_cart',
+        related_name='shoppingcart',
         verbose_name='Рецепт в списке покупок',
         help_text='Выберите рецепт для списка покупок',
     )
