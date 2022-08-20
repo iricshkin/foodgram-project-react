@@ -32,11 +32,11 @@ router_v1.register(
 urlpatterns = [
     path(
         'users/subscriptions/',
-        SubscriptionsViewSet.as_view({'get': "list"}),
+        SubscriptionsViewSet.as_view({'get': 'list'}),
         name='subscriptions',
     ),
     path(
-        'users/<int:user_id>/subscribe/',
+        'users/<int:author_id>/subscribe/',
         SubscriptionsViewSet.as_view({'post': 'create', 'delete': 'delete'}),
         name='subscribe',
     ),

@@ -51,8 +51,8 @@ class SubscriptionsViewSet(viewsets.ModelViewSet):
     serializer_class = SubscriptionsSerializer
     permission_class = (IsAuthenticated,)
 
-    def get_queriser(self):
-        return get_list_or_404(User, author=self.request.user)
+    def get_queryset(self):
+        return get_list_or_404(User, following__user=self.request.user)
 
     def create(self, request, *args, **kwargs):
         user = request.user
