@@ -27,7 +27,7 @@ from .pagination import LimitPageNumberPagination
 from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .serializers import (
     IngredientSerializer,
-    RecipeMinifiedSerializer,
+    RecipeMinifieldSerializer,
     RecipeSerializer,
     SubscriptionsSerializer,
     TagSerializer,
@@ -118,7 +118,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 'recipe__ingredients__name',
                 'recipe__ingredients__measurement_unit',
             )
-            .annotate(amount=Sum('recipe__ingredient_in_recipes__amout'))
+            .annotate(amount=Sum('recipe__ingredientinrecipes__amout'))
         )
         if not ingredients:
             return Response(
@@ -162,7 +162,7 @@ class FavoriteViewSet(
     """Вьюсет для избранных рецептов."""
 
     queryset = Recipe.objects.all()
-    serializer_class = RecipeMinifiedSerializer
+    serializer_class = RecipeMinifieldSerializer
     permission_classes = (IsAuthenticated,)
 
     def create(self, request, recipe_id):
@@ -193,7 +193,7 @@ class ShoppingCartViewSet(viewsets.ModelViewSet):
     """Вьюсет для списка покупок."""
 
     queryset = Recipe.objects.all()
-    serializer_class = RecipeMinifiedSerializer
+    serializer_class = RecipeMinifieldSerializer
     permission_classes = (
         IsAdminOrReadOnly,
         IsAuthorOrReadOnly,
