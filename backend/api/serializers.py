@@ -13,7 +13,6 @@ from recipes.models import (
     TagRecipe,
 )
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidators
 from users.models import User
 
 
@@ -349,43 +348,10 @@ class RecipePostSerializer(serializers.ModelSerializer):
         return instance
 
 
-class FavoriteSerializer(serializers.ModelSerializer):
-    """Сериализатор для избранного."""
-
-    class Meta:
-        fields = ('user', 'recipe')
-        model = Favorite
-        validators = [
-            UniqueTogetherValidators(
-                queryset=Favorite.objects.all(),
-                fields=('user', 'recipe'),
-                message='Рецепт уже добавлен в избранное!',
-            )
-        ]
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        return RecipeMinifieldSerializer(
-            instance.recipe, context={'request': request}
-        ).data
-
-
 class ShoppingCartSerializer(serializers.Serializer):
     """Сериализатор для списка покупок."""
 
-    class Meta(FavoriteSerializer.Meta):
-        fields = '__all__'
-        model = ShoppingCart
-        validators = [
-            UniqueTogetherValidators(
-                queryset=ShoppingCart.objects.all(),
-                fields=('user', 'recipe'),
-                message='Рецепт уже добавлен в список покупок!',
-            )
-        ]
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        return RecipeMinifieldSerializer(
-            instance.recipe, context={'request': request}
-        ).data
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    cooking_time = serializers.IntegerField()
+    image = Base64ImageField(max_length=None, use_url=True)

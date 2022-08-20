@@ -28,6 +28,7 @@ from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .serializers import (
     IngredientSerializer,
     RecipeMinifieldSerializer,
+    RecipePostSerializer,
     RecipeSerializer,
     SubscriptionsSerializer,
     TagSerializer,
@@ -39,7 +40,6 @@ class CreateUserViewSet(UserViewSet):
     """Вьюсет для пользователя."""
 
     serializer_class = UserSerializer
-    pagination_class = LimitPageNumberPagination
 
     def get_queryset(self):
         return User.objects.all()
@@ -99,11 +99,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецептов."""
 
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
+    # serializer_class = RecipeSerializer
     permission_class = (IsAuthorOrReadOnly,)
     pagination_classes = LimitPageNumberPagination
     filterset_class = RecipeFilter
     filter_backends = (DjangoFilterBackend,)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RecipeSerializer
+        else:
+            return RecipePostSerializer
 
     @action(
         url_path='download_shopping_cart',
@@ -213,18 +222,17 @@ class ShoppingCartViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
-def delete(self, request, recipe_id):
-    user = request.user
-    recipe = get_object_or_404(Recipe, pk=recipe_id)
-    cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
-    if not cart.exists():
-        return Response(
-            data={'detail': 'Рецепта еще нет в списке покупок!'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-    cart.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, recipe_id):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
+        if not cart.exists():
+            return Response(
+                data={'detail': 'Рецепта еще нет в списке покупок!'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        cart.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class DownloadShoppingCart(viewsets.ModelViewSet):
@@ -269,7 +277,9 @@ class DownloadShoppingCart(viewsets.ModelViewSet):
 
     def download(self, request):
         result = (
-            IngredientInRecipe.objects.filter(recipe__carts__user=request.user)
+            IngredientInRecipe.objects.filter(
+                recipe__shoppingcart__user=request.user
+            )
             .values('ingredient__name', 'ingredient__measurement_unit')
             .order_by('ingredient__name')
             .annotate(ingredient_total=Sum('amount'))
