@@ -97,10 +97,10 @@ class CreateUserViewSet(UserViewSet):
         methods=['POST', 'DELETE'],
         permission_classes=(IsAuthenticated,),
     )
-    def subscribe(self, request, pr=None):
+    def subscribe(self, request, id=None):
         user = request.user
-        author_id = self.kwargs.get('author_id')
-        author = get_object_or_404(User, pk=author_id)
+        #        author_id = self.kwargs.get('author_pk')
+        author = get_object_or_404(User, id=id)
         if request.method == 'POST':
             if user == author:
                 return Response(
@@ -167,7 +167,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 'recipe__ingredients__name',
                 'recipe__ingredients__measurement_unit',
             )
-            .annotate(amount=Sum('recipe__recipesingredients__amout'))
+            .annotate(amount=Sum('recipe__recipesingredients__amount'))
         )
         if not ingredients:
             return Response(
@@ -219,7 +219,7 @@ class FavoriteViewSet(
         if Favorite.objects.filter(user=request.user, recipe=recipe).exists():
             return Response(
                 data={'detail': 'Этот рецепт уже есть в избранном!'},
-                status=status.HTTP_400_Bad_REQUEST,
+                status=status.HTTP_400_BAD_REQUEST,
             )
         Favorite.objects.create(user=request.user, recipe=recipe)
         serializer = self.get_serializer(recipe)

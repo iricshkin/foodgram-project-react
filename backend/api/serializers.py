@@ -43,8 +43,17 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
             raise ValidationError('Нельзя подписываться на самого себя!')
         return data
 
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        return (
+            request.user.is_authenticated
+            and Subscription.objects.filter(
+                user=request.user, author=obj
+            ).exists()
+        )
+
     def get_recipes(self, obj):
-        queryset = Recipe.objects.filter(author=obj.obj)
+        queryset = Recipe.objects.filter(author=obj.id)
         return RecipeMinifieldSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
@@ -225,7 +234,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
     """Сериализатор для создания рецептов."""
 
     ingredients = AddToIngredientInRecipeSerializer(many=True)
-    image = Base64ImageField()
+    image = Base64ImageField(required=False)
 
     class Meta:
         fields = (
