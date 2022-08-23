@@ -1,14 +1,8 @@
 from django.db.models import Case, IntegerField, Q, When
 from django_filters import CharFilter, FilterSet, filters
-
 from recipes.models import Ingredient, Recipe, Tag
 
-# from rest_framework.filters import SearchFilter
 
-
-# class IngredientSearchFilter(SearchFilter):
-#
-#    search_param = 'name'
 class IngredientSearchFilter(FilterSet):
     """Фильтр поиска ингредиентов."""
 
