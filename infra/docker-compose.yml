@@ -23,7 +23,7 @@ services:
       - ./.env
 
   frontend:
-    # image: iricshkin/foodgram_frontend:latest
+    # image: iricshkin/foodgram_frontend:v.01
     build:
       context: ../frontend
       dockerfile: Dockerfile

@@ -99,7 +99,6 @@ class CreateUserViewSet(UserViewSet):
     )
     def subscribe(self, request, id=None):
         user = request.user
-        #        author_id = self.kwargs.get('author_pk')
         author = get_object_or_404(User, id=id)
         if request.method == 'POST':
             if user == author:

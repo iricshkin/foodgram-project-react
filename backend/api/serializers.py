@@ -57,7 +57,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
         return RecipeMinifieldSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
-        return Recipe.objects.filter(author=obj.id).count()
+        return Recipe.objects.filter(author=obj).count()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -128,18 +128,17 @@ class TagSerializer(serializers.ModelSerializer):
 class IngredientSerializer(serializers.ModelSerializer):
     """Сериализатор для ингредиентов."""
 
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField(write_only=True)
-
     class Meta:
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+        fields = '__all__'
         model = Ingredient
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор для количества ингредиентов в рецепте."""
+    """Сериализатор для ингредиентов в рецепте."""
 
-    id = serializers.ReadOnlyField(source='ingredient.id')
+    id = serializers.ReadOnlyField(
+        source='ingredient.id',
+    )
     name = serializers.ReadOnlyField(
         source='ingredient.name',
     )
@@ -156,6 +155,7 @@ class AddToIngredientInRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для добавления количества ингредиентов."""
 
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField(write_only=True)
 
     class Meta:
         fields = ('id', 'amount')
@@ -215,26 +215,16 @@ class RecipeSerializer(serializers.ModelSerializer):
         ).exists()
 
 
-#    def add_ingredients_and_tags(self, tags, ingredients, recipe):
-#        for tag in tags:
-#            recipe.tags.add(tag)
-#            recipe.save()
-#        instances = [
-#            IngredientInRecipe(
-#                recipe=recipe,
-#                ingredient=ingredient['id'],
-#                amount=ingredient['amount'],
-#            )
-#            for ingredient in ingredients
-#        ]
-#        IngredientInRecipe.objects.bulk_create(instances)
-
-
 class RecipePostSerializer(serializers.ModelSerializer):
     """Сериализатор для создания рецептов."""
 
-    ingredients = AddToIngredientInRecipeSerializer(many=True)
-    image = Base64ImageField(required=False)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True
+    )
+    ingredients = AddToIngredientInRecipeSerializer(
+        source='recipesingredients', many=True
+    )
+    image = Base64ImageField(max_length=None, use_url=False)
 
     class Meta:
         fields = (
@@ -247,27 +237,23 @@ class RecipePostSerializer(serializers.ModelSerializer):
         )
         model = Recipe
 
-    def validate_ingredients(self, value):
-        #        ingredients_list = []
+    def validate_ingredients(self, ingredients):
+        if not ingredients:
+            raise serializers.ValidationError(
+                'Необходимо выбрать ингредиенты!'
+            )
 
-        ingredients = value
         for ingredient in ingredients:
             if ingredient['amount'] < 1:
                 raise serializers.ValidationError(
                     'Количество не может быть меньше 1!'
                 )
-        #            id_to_check = ingredient['id']
-        #      ingredient_to_check = Ingredient.objects.filter(id=id_to_check)
-        #            if not ingredient_to_check.exists():
-        #                raise serializers.ValidationError(
-        #                    'Данного ингредиента нет в базе!'
-        #                )
-        #            if ingredient_to_check in ingredients_list:
-        #                raise serializers.ValidationError(
-        #                    'Данный ингредиент уже есть в рецепте!'
-        #                )
-        #            ingredients_list.append(ingredient_to_check)
-        return value
+        ids = [ingredient['id'] for ingredient in ingredients]
+        if len(ids) != len(set(ids)):
+            raise serializers.ValidationError(
+                'Данный ингредиент уже есть в рецепте!'
+            )
+        return ingredients
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -290,39 +276,23 @@ class RecipePostSerializer(serializers.ModelSerializer):
             for ingredient in ingredients
         ]
         IngredientInRecipe.objects.bulk_create(instances)
-
-        # for ingredient in ingredients:
-        #    if not IngredientInRecipe.objects.filter(
-        #        ingredient_id=ingredient['ingredient']['id'],
-        #        recipe=recipe,
-        #    ).exists():
-        #        ingredientinrecipe = IngredientInRecipe.objects.create(
-        #            ingredient_id=ingredient['ingredient']['id'],
-        #            recipe=recipe,
-        #        )
-        #        ingredientinrecipe.amount = ingredient['amount']
-        #        ingredientinrecipe.save()
-        #    else:
-        #        IngredientInRecipe.objects.filter(recipe=recipe).delete()
-        #        recipe.delete()
-        #        raise serializers.ValidationError(
-        #            'Данный ингредиент уже есть в рецепте!'
-        #        )
-        #    return recipe
+        return recipe
 
     @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('recipesingredients')
+        ingredients = validated_data.pop('ingredientinrecipes')
         recipe = Recipe.objects.create(**validated_data)
-        recipe.save
-        recipe = self.add_ingredients_and_tags(tags, ingredients, recipe)
+        # recipe.save
+        recipe = self.add_ingredients_and_tags(
+            tags=tags, ingredients=ingredients, recipe=recipe
+        )
         return recipe
 
     @transaction.atomic
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('recipesingredients')
+        ingredients = validated_data.pop('ingredientinrecipes')
         TagRecipe.objects.filter(recipe=instance).delete()
         IngredientInRecipe.objects.filter(recipe=instance).delete()
         instance = self.add_ingredients_and_tags(tags, ingredients, instance)
