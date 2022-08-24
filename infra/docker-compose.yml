@@ -9,11 +9,11 @@ services:
       - ./.env
 
   backend:
-    image: iricshkin/foodgram_backend:latest
-    restart: always
-    # build:
-    #  context: ../backend
-    #  dockerfile: Dockerfile
+    #image: iricshkin/foodgram_backend:latest
+    #restart: always
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
     volumes:
       - static_value:/app/backend_static/:rw
       - media_value:/app/backend_media/:rw
@@ -23,10 +23,10 @@ services:
       - ./.env
 
   frontend:
-    image: iricshkin/foodgram_frontend:v.01
-    # build:
-    #  context: ../frontend
-    #  dockerfile: Dockerfile
+    # image: iricshkin/foodgram_frontend:latest
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
@@ -42,9 +42,6 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/usr/share/nginx/html/backend_static/:ro
       - media_value:/usr/share/nginx/html/backend_media:ro
-      # - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
-      # - static_value:/var/html/backend_static/:ro
-      # - media_value:/var/html/backend_media/:ro
     depends_on:
       - backend
 

@@ -11,13 +11,13 @@ Content-Type: application/json
 GET http://127.0.0.1:8080/api/users/me/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 ### User profile
 GET http://127.0.0.1:8080/api/users/1/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 ### User registration
 POST http://127.0.0.1:8080/api/users/
@@ -46,7 +46,7 @@ Content-Type: application/json
 POST http://127.0.0.1:8080/api/auth/token/logout/
 Content-Type: application/json
 # for example:
-Authorization: token 7ce1f9d0be88fa41280479148ccd0e2f7b9f6082
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 
 # TAGS
@@ -74,7 +74,7 @@ Content-Type: application/json
 POST http://127.0.0.1:8080/api/recipes/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 # for example:
 {
@@ -113,7 +113,7 @@ Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
 PATCH http://127.0.0.1:8080/api/recipes/3/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 # for example:
 {
@@ -152,7 +152,7 @@ Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
 DELETE http://127.0.0.1:8080/api/recipes/3/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 
 # SHOPPING CART
@@ -161,13 +161,13 @@ Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
 GET http://127.0.0.1:8080/api/recipes/download_shopping_cart/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 ### Add a recipe in the shopping cart
 POST http://127.0.0.1:8080/api/recipes/4/shopping_cart/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 # for example:
 {
@@ -181,7 +181,7 @@ Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
 DELETE http://127.0.0.1:8080/api/recipes/4/shopping_cart/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 
 # FAVORITE
@@ -190,7 +190,7 @@ Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
 POST http://127.0.0.1:8080/api/recipes/4/favorite/
 Content-Type: application/json
 # for example
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 #for example:
 {
@@ -204,7 +204,7 @@ Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
 DELETE http://127.0.0.1:8000/api/recipes/4/favorite/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 
 # SUBSCRIPTIONS
@@ -213,13 +213,13 @@ Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
 GET http://127.0.0.1:8080/api/users/subscriptions/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 ### Subscribe to a user
 POST http://127.0.0.1:8080/api/users/1/subscribe/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 # for example:
 {
@@ -244,7 +244,7 @@ Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
 DELETE http://127.0.0.1:8080/api/users/1/subscribe/
 Content-Type: application/json
 # for example:
-Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+Authorization: token dc418fa459d026a8730fdee0fc737aa629c04233
 
 
 # INGREDIENTS

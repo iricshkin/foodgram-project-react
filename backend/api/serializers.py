@@ -49,7 +49,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
         return RecipeMinifieldSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
-        return Recipe.objects.filter(author=obj).count()
+        return Recipe.objects.filter(author=obj.id).count()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -121,7 +121,7 @@ class IngredientSerializer(serializers.ModelSerializer):
     """Сериализатор для ингредиентов."""
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'name', 'measurement_unit')
         model = Ingredient
 
 
@@ -173,7 +173,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecipeSerializer(
         source='recipesingredients', many=True
     )
-    image = serializers.ImageField()
     is_favorited = serializers.BooleanField(default=False)
     is_in_shopping_cart = serializers.BooleanField(default=False)
 
@@ -196,20 +195,23 @@ class RecipeSerializer(serializers.ModelSerializer):
         request = self.context['request']
         if request is None or request.user.is_anonymous:
             return False
-        return Favorite.objects.filter(user=request.user, recipe=obj).exists()
+        return Favorite.objects.filter(
+            user=request.user, recipe=obj.id
+        ).exists()
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
         return ShoppingCart.objects.filter(
-            user=request.user, recipe=obj
+            user=request.user, recipe=obj.id
         ).exists()
 
 
 class RecipePostSerializer(serializers.ModelSerializer):
     """Сериализатор для создания рецептов."""
 
+    author = UserSerializer(read_only=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True
     )
@@ -220,6 +222,8 @@ class RecipePostSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = (
+            'id',
+            'author',
             'ingredients',
             'tags',
             'image',
@@ -230,6 +234,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
         model = Recipe
 
     def validate_ingredients(self, ingredients):
+        print(ingredients)
         if not ingredients:
             raise serializers.ValidationError(
                 'Необходимо выбрать ингредиенты!'
@@ -246,14 +251,6 @@ class RecipePostSerializer(serializers.ModelSerializer):
                 'Данный ингредиент уже есть в рецепте!'
             )
         return ingredients
-
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep['tags'] = TagSerializer(instance.tags.all(), many=True).data
-        rep['ingredients'] = IngredientInRecipeSerializer(
-            instance.ingredientinrecipes.all(), many=True
-        ).data
-        return rep
 
     def add_ingredients_and_tags(self, tags, ingredients, recipe):
         for tag in tags:
@@ -273,9 +270,8 @@ class RecipePostSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredientinrecipes')
+        ingredients = validated_data.pop('recipesingredients')
         recipe = Recipe.objects.create(**validated_data)
-        # recipe.save
         recipe = self.add_ingredients_and_tags(
             tags=tags, ingredients=ingredients, recipe=recipe
         )
@@ -284,7 +280,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredientinrecipes')
+        ingredients = validated_data.pop('recipesingredients')
         TagRecipe.objects.filter(recipe=instance).delete()
         IngredientInRecipe.objects.filter(recipe=instance).delete()
         instance = self.add_ingredients_and_tags(tags, ingredients, instance)
@@ -300,3 +296,7 @@ class ShoppingCartSerializer(serializers.Serializer):
     name = serializers.CharField()
     cooking_time = serializers.IntegerField()
     image = Base64ImageField()
+
+    class Meta:
+        fields = ()
+        model = ShoppingCart
