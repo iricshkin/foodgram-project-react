@@ -1,0 +1,258 @@
+### API requests of the foodgram project
+
+
+# USERS
+
+### Users list
+GET http://127.0.0.1:8080/api/users/
+Content-Type: application/json
+
+### Current user
+GET http://127.0.0.1:8080/api/users/me/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+### User profile
+GET http://127.0.0.1:8080/api/users/1/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+### User registration
+POST http://127.0.0.1:8080/api/users/
+Content-Type: application/json
+
+# for example:
+{
+  "email": "someone4@yandex.ru",
+  "username": "user4",
+  "first_name": "Someone4",
+  "last_name": "Anyone4",
+  "password": "stringString"
+}
+
+### Get authorization a token
+POST http://127.0.0.1:8080/api/auth/token/login/
+Content-Type: application/json
+
+# for example
+{
+  "password": "djededd2324",
+  "email": "someone@yandex.ru"
+}
+
+### Delete a token
+POST http://127.0.0.1:8080/api/auth/token/logout/
+Content-Type: application/json
+# for example:
+Authorization: token 7ce1f9d0be88fa41280479148ccd0e2f7b9f6082
+
+
+# TAGS
+
+### Tags list
+GET http://127.0.0.1:8080/api/tags/
+Content-Type: application/json
+
+### Get a tag by id
+GET http://127.0.0.1:8080/api/tags/3/
+Content-Type: application/json
+
+
+# RECIPES
+
+### Recipes list
+GET http://127.0.0.1:8080/api/recipes/
+Content-Type: application/json
+
+### Get a recipe by id
+GET http://127.0.0.1:8080/api/recipes/1/
+Content-Type: application/json
+
+### Create a recipe
+POST http://127.0.0.1:8080/api/recipes/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+# for example:
+{
+  "id": 2,
+  "author": 1,
+  "name": "test",
+  "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+  "text": "test",
+  "ingredients": [
+    {
+      "id": 2,
+      "name": "Картофель",
+      "measurement_unit": "грамм",
+      "amount": 100
+    },
+    {
+      "id": 1,
+      "name": "колбаса",
+      "measurement_unit": "грамм",
+      "amount": 200
+    },
+    {
+      "id": 3,
+      "name": "огурцы",
+      "measurement_unit": "грамм",
+      "amount": 300
+    }
+  ],
+  "tags": [],
+  "cooking_time": 15,
+  "is_in_shopping_cart": false,
+  "is_favorited": false
+}
+
+### Update a recipe
+PATCH http://127.0.0.1:8080/api/recipes/3/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+# for example:
+{
+  "id": 2,
+  "author": 1,
+  "name": "check_test",
+  "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+  "text": "test",
+  "ingredients": [
+    {
+      "id": 2,
+      "name": "Картофель",
+      "measurement_unit": "грамм",
+      "amount": 100
+    },
+    {
+      "id": 1,
+      "name": "колбаса",
+      "measurement_unit": "грамм",
+      "amount": 200
+    },
+    {
+      "id": 3,
+      "name": "огурцы",
+      "measurement_unit": "грамм",
+      "amount": 300
+    }
+  ],
+  "tags": [],
+  "cooking_time": 15,
+  "is_in_shopping_cart": false,
+  "is_favorited": false
+}
+
+### Delete a recipe
+DELETE http://127.0.0.1:8080/api/recipes/3/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+
+# SHOPPING CART
+
+### Download shopping cart
+GET http://127.0.0.1:8080/api/recipes/download_shopping_cart/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+### Add a recipe in the shopping cart
+POST http://127.0.0.1:8080/api/recipes/4/shopping_cart/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+# for example:
+{
+  "id": 4,
+  "name": "test",
+  "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+  "cooking_time": 15
+}
+
+### Delete a recipe from the shopping cart
+DELETE http://127.0.0.1:8080/api/recipes/4/shopping_cart/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+
+# FAVORITE
+
+### Add a recipe in favorite
+POST http://127.0.0.1:8080/api/recipes/4/favorite/
+Content-Type: application/json
+# for example
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+#for example:
+{
+  "id": 4,
+  "name": "test",
+  "image": "http://127.0.0.1:8080/backend_media/recipes/olive_jySNObW.jpg",
+  "cooking_time": 15,
+}
+
+### Delete a recipe from favorite
+DELETE http://127.0.0.1:8000/api/recipes/4/favorite/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+
+# SUBSCRIPTIONS
+
+### My subscriptions
+GET http://127.0.0.1:8080/api/users/subscriptions/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+### Subscribe to a user
+POST http://127.0.0.1:8080/api/users/1/subscribe/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+# for example:
+{
+  "email": "user@example.com",
+  "id": 0,
+  "username": "string",
+  "first_name": "Вася",
+  "last_name": "Пупкин",
+  "is_subscribed": true,
+  "recipes": [
+    {
+      "id": 0,
+      "name": "string",
+      "image": "http://foodgram.example.org/backend_media/recipes/images/image.jpeg",
+      "cooking_time": 1
+    }
+  ],
+  "recipes_count": 0
+}
+
+### Unsubscribe from the user
+DELETE http://127.0.0.1:8080/api/users/1/subscribe/
+Content-Type: application/json
+# for example:
+Authorization: token 475b32d4d35772cc9d3d24999a0a2f3dabb6293f
+
+
+# INGREDIENTS
+
+### Ingredients list
+GET http://127.0.0.1:8080/api/ingredients/
+Content-Type: application/json
+
+### Get an ingredient by id
+GET http://127.0.0.1:8080/api/ingredients/2/
+Content-Type: application/json
