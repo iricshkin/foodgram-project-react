@@ -1,6 +1,5 @@
 from django.db import transaction
 from django.forms import ValidationError
-# from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
@@ -218,7 +217,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
     ingredients = AddToIngredientInRecipeSerializer(
         source='recipesingredients', many=True
     )
-    image = Base64ImageField(max_length=None, use_url=False)
+    image = Base64ImageField(max_length=None, use_url=True)
 
     class Meta:
         fields = (
@@ -287,16 +286,3 @@ class RecipePostSerializer(serializers.ModelSerializer):
         super().update(instance, validated_data)
         instance.save()
         return instance
-
-
-class ShoppingCartSerializer(serializers.Serializer):
-    """Сериализатор для списка покупок."""
-
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-    cooking_time = serializers.IntegerField()
-    image = Base64ImageField()
-
-    class Meta:
-        fields = ()
-        model = ShoppingCart
