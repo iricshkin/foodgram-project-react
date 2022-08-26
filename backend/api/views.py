@@ -155,7 +155,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 'recipe__ingredients__measurement_unit',
             )
             .annotate(total=Sum('recipe__recipesingredients__amount'))
-        )
+        ).order_by()
         if not ingredients:
             return Response(
                 {'errors': 'Список покупок пуст!'},
