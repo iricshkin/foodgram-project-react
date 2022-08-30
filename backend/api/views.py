@@ -1,8 +1,13 @@
+import io
+
 from django.db.models import Sum
-from django.http import HttpResponse
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -19,6 +24,8 @@ from .serializers import (IngredientSerializer, PasswordSerializer,
                           RecipeMinifieldSerializer, RecipePostSerializer,
                           RecipeSerializer, SubscriptionsSerializer,
                           TagSerializer, UserSerializer)
+
+FILENAME = 'my_shopping_cart.pdf'
 
 
 class CreateUserViewSet(UserViewSet):
@@ -147,34 +154,44 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def download_shopping_cart(self, request):
-        """Получение списка покупок в формате txt."""
-        ingredients = (
+        """Получение списка покупок в формате pdf."""
+        buffer = io.BytesIO()
+        page = canvas.Canvas(buffer)
+        pdfmetrics.registerFont(TTFont('List', 'data/List.ttf'))
+        x_position, y_position = 50, 800
+        shopping_cart = (
             ShoppingCart.objects.filter(user=request.user)
             .values(
                 'recipe__ingredients__name',
                 'recipe__ingredients__measurement_unit',
             )
-            .annotate(total=Sum('recipe__recipesingredients__amount'))
-        ).order_by()
-        if not ingredients:
-            return Response(
-                {'errors': 'Список покупок пуст!'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        shopping_cart = 'Ваш список покупок: \n'
-        for ingredient in ingredients:
-            shopping_cart += (
-                f'{ingredient["recipe__ingredients__name"]} '
-                f'({ingredient["recipe__ingredients__measurement_unit"]}) - '
-                f'{ingredient["total"]} \n\n'
-            )
-        shopping_cart += '@Продуктовый помощник'
-        filename = 'my_shopping_cart.txt'
-        response = HttpResponse(
-            shopping_cart, status=status.HTTP_200_OK, content_type='text/plain'
+            .annotate(amount=Sum('recipe__recipesingredients__amount'))
+            .order_by()
         )
-        response['Content-Disposition'] = f'attachment; filename={filename}'
-        return response
+        page.setFont('List', 14)
+        if shopping_cart:
+            indent = 20
+            page.drawString(x_position, y_position, 'Cписок покупок:')
+            for index, recipe in enumerate(shopping_cart, start=1):
+                page.drawString(
+                    x_position,
+                    y_position - indent,
+                    f'{index}. {recipe["recipe__ingredients__name"]} - '
+                    f'{recipe["amount"]} '
+                    f'{recipe["recipe__ingredients__measurement_unit"]}.',
+                )
+                y_position -= 15
+                if y_position <= 50:
+                    page.showPage()
+                    y_position = 800
+            page.save()
+            buffer.seek(0)
+            return FileResponse(buffer, as_attachment=True, filename=FILENAME)
+        page.setFont('List', 24)
+        page.drawString(x_position, y_position, 'Cписок покупок пуст!')
+        page.save()
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename=FILENAME)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
