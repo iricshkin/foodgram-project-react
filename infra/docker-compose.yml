@@ -9,7 +9,7 @@ services:
       - ./.env
 
   backend:
-    image: iricshkin/foodgram_backend:v05.2608
+    image: iricshkin/foodgram_backend:v06.3008
     restart: always
     #build:
     #  context: ../backend
