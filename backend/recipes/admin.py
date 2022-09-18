@@ -1,7 +1,10 @@
+"""Модуль админки рецептов."""
+
 from django.contrib import admin
 
-from .models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
-                     ShoppingCart, Subscription, Tag, TagRecipe)
+from backend.recipes.models import (Favorite, Ingredient, IngredientInRecipe,
+                                    Recipe, ShoppingCart, Subscription, Tag,
+                                    TagRecipe)
 
 
 class IngredientInRecipeInline(admin.TabularInline):
@@ -47,7 +50,7 @@ class RecipeAdmin(admin.ModelAdmin):
         """Метод подсчета общего числа добавлений этого рецепта в избранное."""
         return Favorite.objects.filter(recipe=obj).count()
 
-    count_favorite.short_description = 'Количество добавлений в избранное'
+    # count_favorite.short_description = 'Количество добавлений в избранное'
 
 
 class FavoriteAdmin(admin.ModelAdmin):

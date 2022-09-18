@@ -6,7 +6,7 @@ import {
   Button,
   CheckboxGroup,
   Container,
-  Main 
+  Main
 } from '../../components'
 import cn from 'classnames'
 import styles from './styles.module.css'
@@ -100,7 +100,7 @@ const UserPage = ({ updateOrders }) => {
       {(userContext || {}).id !== (user || {}).id && <Button
         className={styles.buttonSubscribe}
         clickHandler={_ => {
-          const method = subscribed ? api.deleteSubscriptions.bind(api) : api.subscribe.bind(api) 
+          const method = subscribed ? api.deleteSubscriptions.bind(api) : api.subscribe.bind(api)
             method({
               author_id: id
             })
@@ -131,4 +131,3 @@ const UserPage = ({ updateOrders }) => {
 }
 
 export default UserPage
-

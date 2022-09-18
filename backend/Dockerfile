@@ -1,6 +1,6 @@
 FROM python:3.8-slim
 
-RUN apt update && apt -y install libpq-dev build-essential 
+RUN apt update && apt -y install libpq-dev build-essential
 
 WORKDIR /app
 

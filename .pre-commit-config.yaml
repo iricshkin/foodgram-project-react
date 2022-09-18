@@ -1,0 +1,75 @@
+default_stages:
+- commit
+
+default_language_version:
+  python: python3.8
+
+exclude: /migrations/
+
+repos:
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v3.2.0
+  hooks:
+  - id: trailing-whitespace
+    stages:
+    - commit
+  - id: double-quote-string-fixer
+    stages:
+    - commit
+  - id: end-of-file-fixer
+    exclude: \.svg$
+    stages:
+    - commit
+  - id: detect-private-key
+    stages:
+    - commit
+  - id: check-ast
+    stages:
+    - commit
+
+- repo: https://github.com/pre-commit/pygrep-hooks
+  rev: v1.9.0
+  hooks:
+  - id: python-check-blanket-noqa
+
+- repo: https://gitlab.com/pycqa/flake8
+  rev: 3.9.2
+  hooks:
+  - id: flake8
+    args: [ --config=setup.cfg, backend/ ]
+    additional_dependencies:
+    - flake8-adjustable-complexity==0.0.5
+    - flake8-bugbear==21.9.2
+    - flake8-builtins==1.5.3
+    - flake8-commas==2.1.0
+    - flake8-comprehensions==3.7.0
+    - flake8-debugger==4.0.0
+    - flake8-docstrings==1.6.0
+    - flake8-functions==0.0.5
+    - flake8-polyfill==1.0.2
+    - flake8-pytest-style==1.5.0
+    - flake8-print==4.0.0
+    - flake8-quotes==3.3.1
+    - flake8-string-format==0.3.0
+    - flake8-todo==0.7
+    - flake8-class-attributes-order==0.1.2
+    - flake8-annotations-complexity==0.0.6
+    - flake8-variables-names==0.0.4
+    - flake8-broken-line==0.4.0
+    - flake8-cognitive-complexity==0.1.0
+    - cognitive-complexity==0.0.4
+    - flake8-fine-pytest==1.0.2
+    - mypy-extensions==0.4.3
+    - pep8-naming==0.12.1
+
+- repo: https://github.com/PyCQA/isort
+  rev: 5.9.3
+  hooks:
+    - id: isort
+      args: [ backend/ ]
+
+- repo: https://github.com/MarcoGorelli/absolufy-imports
+  rev: v0.3.0
+  hooks:
+    - id: absolufy-imports

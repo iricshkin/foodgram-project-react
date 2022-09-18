@@ -1,6 +1,7 @@
+"""Модуль создания моделей для приложения рецептов."""
+
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-
 from users.models import User
 
 MIN_INGR_AMOUNT = 1
@@ -9,6 +10,13 @@ MIN_COOK_TIME = 1
 
 class Tag(models.Model):
     """Модель тэгов."""
+
+    class Meta:
+        """Метакласс для модели тегов."""
+
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+        ordering = ('name',)
 
     name = models.CharField(
         max_length=200,
@@ -24,8 +32,9 @@ class Tag(models.Model):
         help_text='Введите цвет тега в НЕХ',
         validators=[
             RegexValidator(
-                r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$', 'Неверный цветовой код'
-            )
+                r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
+                'Неверный цветовой код',
+            ),
         ],
     )
     slug = models.SlugField(
@@ -35,21 +44,24 @@ class Tag(models.Model):
         verbose_name='Уникальный слаг',
         help_text='Введите уникальный слаг',
         validators=[
-            RegexValidator(r'^[-a-zA-Z0-9_]+$', 'Неверный уникальный слаг')
+            RegexValidator(r'^[-a-zA-Z0-9_]+$', 'Неверный уникальный слаг'),
         ],
     )
 
-    class Meta:
-        verbose_name = 'Тег'
-        verbose_name_plural = 'Теги'
-        ordering = ('name',)
-
     def __str__(self) -> str:
+        """Метод возвращает строковое представление тегов."""
         return self.name
 
 
 class Ingredient(models.Model):
     """Модель ингредиента."""
+
+    class Meta:
+        """Метакласс для модели ингредиента."""
+
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+        ordering = ('name',)
 
     name = models.CharField(
         max_length=200,
@@ -62,25 +74,21 @@ class Ingredient(models.Model):
         help_text='Введите единицу измерения',
     )
 
-    class Meta:
-        verbose_name = 'Ингредиент'
-        verbose_name_plural = 'Ингредиенты'
-        ordering = ('name',)
-
     def __str__(self) -> str:
+        """Метод возвращает строковое представление ингредиентов."""
         return f'{self.name}, {self.measurement_unit}'
 
 
 class Recipe(models.Model):
     """Модель рецептов."""
 
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='recipes',
-        verbose_name='Автор рецепта',
-        help_text='Введите автора рецепта',
-    )
+    class Meta:
+        """Метакласс для модели рецептов."""
+
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
+        ordering = ('-pub_date',)
+
     name = models.CharField(
         max_length=200,
         verbose_name='Название рецепта',
@@ -92,7 +100,8 @@ class Recipe(models.Model):
         help_text='Выберите изображение рецепта',
     )
     text = models.TextField(
-        verbose_name='Описание рецепта', help_text='Введите описание рецепта'
+        verbose_name='Описание рецепта',
+        help_text='Введите описание рецепта',
     )
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления (в минутах)',
@@ -101,8 +110,20 @@ class Recipe(models.Model):
             MinValueValidator(
                 MIN_COOK_TIME,
                 f'минимальное время приготовления {MIN_COOK_TIME} мин.',
-            )
+            ),
         ],
+    )
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата создания рецепта',
+        help_text='Введите дату создания рецепта',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='recipes',
+        verbose_name='Автор рецепта',
+        help_text='Введите автора рецепта',
     )
     tags = models.ManyToManyField(
         Tag,
@@ -117,23 +138,26 @@ class Recipe(models.Model):
         verbose_name='Необходимые ингредиенты',
         help_text='Выберете необходимые ингредиенты',
     )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата создания рецепта',
-        help_text='Введите дату создания рецепта',
-    )
-
-    class Meta:
-        verbose_name = 'Рецепт'
-        verbose_name_plural = 'Рецепты'
-        ordering = ('-pub_date',)
 
     def __str__(self) -> str:
+        """Метод возвращает строковое представление рецептов."""
         return f'{self.name} - {self.author}'
 
 
 class TagRecipe(models.Model):
     """Модель списка тегов рецепта."""
+
+    class Meta:
+        """Метакласс для модели списка тегов рецепта."""
+
+        verbose_name = 'Список тегов рецепта'
+        verbose_name_plural = 'Список тегов рецепта'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['tag', 'recipe'],
+                name='unique_tag_recipe',
+            ),
+        ]
 
     tag = models.ForeignKey(
         Tag,
@@ -148,22 +172,36 @@ class TagRecipe(models.Model):
         help_text='Выберите рецепт',
     )
 
-    class Meta:
-        verbose_name = 'Список тегов рецепта'
-        verbose_name_plural = 'Список тегов рецепта'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['tag', 'recipe'], name='unique_tag_recipe'
-            )
-        ]
-
     def __str__(self) -> str:
+        """Метод возвращает строковое представление тегов в рецепте."""
         return f'{self.tag} - {self.recipe}'
 
 
 class IngredientInRecipe(models.Model):
     """Модель количества ингредиентов в рецепте."""
 
+    class Meta:
+        """Метакласс для модели ингредиентов в рецепте."""
+
+        verbose_name = 'Ингредиенты в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецепте'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='unique_ingredient_in_recipe',
+            ),
+        ]
+
+    amount = models.PositiveIntegerField(
+        verbose_name='Количество',
+        help_text='Укажите количество ингредиента',
+        validators=[
+            MinValueValidator(
+                MIN_INGR_AMOUNT,
+                f'укажите количество не менее {MIN_INGR_AMOUNT}',
+            ),
+        ],
+    )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.PROTECT,
@@ -178,33 +216,27 @@ class IngredientInRecipe(models.Model):
         verbose_name='Рецепт',
         help_text='Выберите рецепт',
     )
-    amount = models.PositiveIntegerField(
-        verbose_name='Количество',
-        help_text='Укажите количество ингредиента',
-        validators=[
-            MinValueValidator(
-                MIN_INGR_AMOUNT,
-                f'укажите количество не менее {MIN_INGR_AMOUNT}',
-            )
-        ],
-    )
-
-    class Meta:
-        verbose_name = 'Ингредиенты в рецепте'
-        verbose_name_plural = 'Ингредиенты в рецепте'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['recipe', 'ingredient'],
-                name='unique_ingredient_in_recipe',
-            )
-        ]
 
     def __str__(self) -> str:
+        """Метод возвращает строковое представление модели."""
         return f'{self.recipe} -{self.ingredient}, {self.amount}'
 
 
 class Favorite(models.Model):
     """Модель списка избранного."""
+
+    class Meta:
+        """Метакласс для модели списка избранного."""
+
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        ordering = ('-id',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_recipe_in_favorite',
+            ),
+        ]
 
     user = models.ForeignKey(
         User,
@@ -220,23 +252,36 @@ class Favorite(models.Model):
         help_text='Выберите избранный рецепт',
     )
 
-    class Meta:
-        verbose_name = 'Избранное'
-        verbose_name_plural = 'Избранное'
-        ordering = ('-id',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'], name='unique_recipe_in_favorite'
-            )
-        ]
-
     def __str__(self) -> str:
+        """Метод возвращает строковое представление избранный рецептов."""
         return f'{self.user} - {self.recipe}'
 
 
 class Subscription(models.Model):
     """Модель подписок."""
 
+    class Meta:
+        """Метакласс для модели подписок."""
+
+        ordering = ('-created',)
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_relationships',
+            ),
+            models.CheckConstraint(
+                name='prevent_self_follow',
+                check=~models.Q(user=models.F('author')),
+            ),
+        ]
+
+    created = models.DateTimeField(
+        db_index=True,
+        verbose_name='Дата создания',
+        auto_now_add=True,
+    )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -249,31 +294,32 @@ class Subscription(models.Model):
         related_name='following',
         verbose_name='Избранный автор',
     )
-    created = models.DateTimeField(
-        db_index=True, verbose_name='Дата создания', auto_now_add=True
-    )
-
-    class Meta:
-        ordering = ('-created',)
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'author'], name='unique_relationships'
-            ),
-            models.CheckConstraint(
-                name='prevent_self_follow',
-                check=~models.Q(user=models.F('author')),
-            ),
-        ]
 
     def __str__(self) -> str:
+        """Метод возвращает строковое представление подписок на автора."""
         return f'{self.user} подписан(а) на {self.author}'
 
 
 class ShoppingCart(models.Model):
     """Модель списка покупок."""
 
+    class Meta:
+        """Метакласс для модели списка покупок."""
+
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
+        ordering = ('-add_date',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_shopping_cart',
+            ),
+        ]
+
+    add_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата добавления',
+    )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -287,16 +333,3 @@ class ShoppingCart(models.Model):
         verbose_name='Рецепт в списке покупок',
         help_text='Выберите рецепт для списка покупок',
     )
-    add_date = models.DateTimeField(
-        auto_now_add=True, verbose_name='Дата добавления'
-    )
-
-    class Meta:
-        verbose_name = 'Список покупок'
-        verbose_name_plural = 'Списки покупок'
-        ordering = ('-add_date',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'], name='unique_shopping_cart'
-            )
-        ]

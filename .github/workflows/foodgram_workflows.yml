@@ -43,7 +43,7 @@ jobs:
         with:
           push: true
           context: ./backend/
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROJECT }}:v06.3008
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROJECT }}:v06.1509
       - name: Push frontend to Docker Hub
         uses: docker/build-push-action@v2
         with:
@@ -73,9 +73,9 @@ jobs:
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROJECT }}:v06.3008
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROJECT }}:v06.1509
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:v.01
-            sudo docker-compose up --force-recreate -d 
+            sudo docker-compose up --force-recreate -d
 
 
   send_message:
